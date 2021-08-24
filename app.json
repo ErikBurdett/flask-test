@@ -2,7 +2,8 @@
     "environments": {
       "test": {
         "scripts": {
-          "test": "test_script"
+          "test-setup": "pip install -r requirements.txt",
+          "test": "python -m unittest test_script.py"
         }
       }
     }
