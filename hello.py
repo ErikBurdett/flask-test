@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def homepage():
-    return "Hello Universe"
+    return "Hello Universe. Hello, Heroku. Howdy."
 
 @app.route("/helloworld")
 def helloworld():
