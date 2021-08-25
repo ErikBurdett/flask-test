@@ -9,8 +9,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:''@localhost/flasktest'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
-class Article(db.Model):
+class Articles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     body = db.Column(db.Text())
@@ -28,14 +29,45 @@ articles_schema = ArticleSchema(many=True)
 
 @app.route("/get", methods = ['GET'])
 def get_articles():
-    return jsonify({
-        "Howdy!":"World"
-    })
+    all_articles = Articles.query.all()
+    results = articles_schema.dump(all_articles)
+    return jsonify(results)
+
+@app.route("/get/<id>/", methods = ['GET'])
+def post_details(id):
+    article = Articles.query.get(id)
+    return article_schema.jsonify(article)
+
+@app.route("/update/<id>/", methods = ['PUT'])
+def update_article(id):
+    article = Articles.query.get(id)
+
+    title = request.json['title']
+    body = request.json['body']
+
+    article.title = title
+    article.body = body
+
+    db.session.commit()
+    return article_schema.jsonify(article)
+
+@app.route("/delete/<id>/", methods = ['DELETE'])
+def article_delete(id):
+    article = Articles.query.get(id)
+    db.session.delete(article)
+    db.session.commit()
+
+    return article_schema.jsonify(article)
 
 @app.route("/add", methods = ['POST'])
 def add_article():
     title = request.json['title']
     body = request.json['body']
+
+    articles = Articles(title, body)
+    db.session.add(articles)
+    db.session.commit()
+    return article_schema.jsonify(articles)
 
 
 @app.route("/homepage")
